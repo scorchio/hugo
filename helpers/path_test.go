@@ -40,25 +40,27 @@ func TestMakePath(t *testing.T) {
 		input         string
 		expected      string
 		removeAccents bool
+		charsToRemove string
 	}{
-		{"  Foo bar  ", "Foo-bar", true},
-		{"Foo.Bar/foo_Bar-Foo", "Foo.Bar/foo_Bar-Foo", true},
-		{"fOO,bar:foobAR", "fOObarfoobAR", true},
-		{"FOo/BaR.html", "FOo/BaR.html", true},
-		{"трям/трям", "трям/трям", true},
-		{"은행", "은행", true},
-		{"Банковский кассир", "Банковскии-кассир", true},
+		{"  Foo bar  ", "Foo-bar", true, ""},
+		{"Foo.Bar/foo_Bar-Foo", "Foo.Bar/foo_Bar-Foo", true, ""},
+		{"Foo.Bar/foo_Bar-Foo", "FooBar/fooBar-Foo", true, "._"},
+		{"fOO,bar:foobAR", "fOObarfoobAR", true, ""},
+		{"FOo/BaR.html", "FOo/BaR.html", true, ""},
+		{"трям/трям", "трям/трям", true, ""},
+		{"은행", "은행", true, ""},
+		{"Банковский кассир", "Банковскии-кассир", true, ""},
 		// Issue #1488
-		{"संस्कृत", "संस्कृत", false},
-		{"a%C3%B1ame", "a%C3%B1ame", false},         // Issue #1292
-		{"this+is+a+test", "this+is+a+test", false}, // Issue #1290
-		{"~foo", "~foo", false},                     // Issue #2177
-
+		{"संस्कृत", "संस्कृत", false, ""},
+		{"a%C3%B1ame", "a%C3%B1ame", false, ""},         // Issue #1292
+		{"this+is+a+test", "this+is+a+test", false, ""}, // Issue #1290
+		{"~foo", "~foo", false, ""},                     // Issue #2177
 	}
 
 	for _, test := range tests {
 		v := newTestCfg()
 		v.Set("removePathAccents", test.removeAccents)
+		v.Set("charsToRemoveFromPath", test.charsToRemove)
 
 		l := langs.NewDefaultLanguage(v)
 		p, err := NewPathSpec(hugofs.NewMem(v), l, nil)

@@ -146,6 +146,7 @@ func (p *PathSpec) UnicodeSanitize(s string) string {
 		isAllowed := r == '.' || r == '/' || r == '\\' || r == '_' || r == '#' || r == '+' || r == '~'
 		isAllowed = isAllowed || unicode.IsLetter(r) || unicode.IsDigit(r) || unicode.IsMark(r)
 		isAllowed = isAllowed || (r == '%' && i+2 < len(source) && ishex(source[i+1]) && ishex(source[i+2]))
+		isAllowed = isAllowed && !strings.ContainsRune(p.CharsToRemoveFromPath, r)
 
 		if isAllowed {
 			if prependHyphen {
